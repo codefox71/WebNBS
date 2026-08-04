@@ -4,12 +4,12 @@ WebNBS is a browser-focused reimplementation of NBS built around `nbs.js`. It ai
 
 Quick start
 
-1. Open [index.html](index.html) in a modern browser.
+1. Run a local server instead of opening `index.html` directly.
 2. On first run you will be asked to accept two documents: the `LICENSE` and the `NON-PROFITEER-LICENSE.txt`. Both must be accepted to continue.
-3. Use the file input to load a `.nbs` file. If `nbs.js` is available the app will attempt to parse and enable playback.
+3. Use the file input to load a `.nbs` file. The app imports `nbs.js` via npm and parses the file in-browser.
 
 Notes
-- The app attempts to load `nbs.js` from the unpkg CDN at runtime. If the library is not available, WebNBS will still allow loading files but playback is disabled until `nbs.js` is present.
+- The app must be served from a local server to resolve ES module imports and package imports correctly.
 - MIDI integration and full parity with the official NBS functionality are in scope — the current commit scaffolds UI and license workflow and uses placeholders where library integration is required.
 
 Run locally (recommended):
@@ -20,13 +20,20 @@ Run locally (recommended):
 npm install
 ```
 
-2. Start the dev server:
+2. Start the test server:
 
 ```bash
-npm run dev
+npm run test-server
 ```
 
 3. Open the app at the address printed by Vite (usually http://localhost:5173).
+
+If you prefer a preview build server, use:
+
+```bash
+npm run build
+npm run start
+```
 
 Notes on MIDI and playback:
 - The app now imports `nbs.js` from npm and parses `.nbs` files in-browser.
@@ -36,7 +43,7 @@ Notes on MIDI and playback:
 Development
 
 - Edit `src/app.js` and `src/styles.css`.
-- Open `index.html` in Chrome, Firefox, or any modern browser.
+- Use the local server rather than opening `index.html` directly.
 
 License / Redistribution
 
@@ -47,5 +54,3 @@ Next steps
 - Wire up a dependable `nbs.js` package and implement full parsing + playback.
 - Add MIDI output support using the Web MIDI API and map instruments to WebAudio/MIDI.
 - Implement UI parity with the official NBS editor (note editor, tempo, layers, instruments).
-# WebNBS
-a as one would say "clone" of nbs but for the browser using nbs.js but is leagly visualy diffrent. but works the same

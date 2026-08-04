@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "serve": "vite",
+    "test-server": "vite",
     "build": "vite build",
     "start": "vite preview"
   },
