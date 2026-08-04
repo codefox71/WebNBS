@@ -12,6 +12,27 @@ Notes
 - The app attempts to load `nbs.js` from the unpkg CDN at runtime. If the library is not available, Wjnbs will still allow loading files but playback is disabled until `nbs.js` is present.
 - MIDI integration and full parity with the official NBS functionality are in scope — the current commit scaffolds UI and license workflow and uses placeholders where library integration is required.
 
+Run locally (recommended):
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start the dev server:
+
+```bash
+npm run dev
+```
+
+3. Open the app at the address printed by Vite (usually http://localhost:5173).
+
+Notes on MIDI and playback:
+- The app now imports `nbs.js` from npm and parses `.nbs` files in-browser.
+- MIDI output can be enabled via the "Enable MIDI" button; choose an output and check "Use MIDI output" before pressing Play.
+- If no MIDI output is selected, Wjnbs falls back to simple WebAudio beeps for preview.
+
 Development
 
 - Edit `src/app.js` and `src/styles.css`.

@@ -1,10 +1,13 @@
-// Basic application glue for Wjnbs — placeholder for nbs.js integration
-(function(){
+// Basic application glue for Wjnbs — now exported as an ES module init()
+export function init(){
   const logEl = id('log');
   const fileInput = id('fileInput');
   const playBtn = id('playBtn');
   const stopBtn = id('stopBtn');
   const fileNameEl = id('fileName');
+  const requestMidiBtn = id('requestMidiBtn');
+  const midiOutSelect = id('midiOut');
+  const useMidiCheckbox = id('useMidi');
 
   const licenseModal = id('licenseModal');
   const agreeMain = id('agreeMain');
@@ -31,14 +34,14 @@
     fileNameEl.textContent = f.name;
     info('Loaded file: ' + f.name);
 
-    // read file bytes (placeholder — actual NBS parsing via nbs.js expected)
+    // read file bytes
     const arrayBuffer = await f.arrayBuffer();
     info('File size: ' + arrayBuffer.byteLength + ' bytes');
 
-    // If nbs.js is available, parse the buffer (best-effort)
+    // If nbs.js is available, parse the buffer
     if(window.NBS && typeof window.NBS.parse === 'function'){
       try{
-        window.wjnbsSong = window.NBS.parse(arrayBuffer);
+        window.wjnbsSong = window.NBS.parse(new Uint8Array(arrayBuffer));
         info('Parsed NBS: ' + (window.wjnbsSong.title||'untitled'));
         playBtn.disabled = false;
         stopBtn.disabled = false;
@@ -56,18 +59,118 @@
 
   playBtn.addEventListener('click', ()=>{
     if(!window.wjnbsSong){ return error('No song loaded'); }
-    if(window.NBS && window.NBS.play){
-      window.NBS.play(window.wjnbsSong);
-      info('Playing via nbs.js.play()');
-    } else {
-      info('Play requested — nbs.js not present, simulated playback start');
-    }
+    try{
+      startPlayback(window.wjnbsSong);
+    }catch(err){ error('Playback error: ' + err.message); }
   });
 
   stopBtn.addEventListener('click', ()=>{
-    if(window.NBS && window.NBS.stop){ window.NBS.stop(); info('Stopped via nbs.js.stop()'); }
-    else info('Stop requested — nbs.js not present');
+    stopPlayback();
   });
+
+  // MIDI setup
+  let midiAccess = null;
+  let selectedOutput = null;
+  let scheduledTimeouts = [];
+  let activeNotes = [];
+
+  requestMidiBtn.addEventListener('click', async ()=>{
+    if(!navigator.requestMIDIAccess){ error('Web MIDI API not available in this browser'); return; }
+    try{
+      midiAccess = await navigator.requestMIDIAccess();
+      populateMidiOutputs();
+      info('MIDI access granted');
+    }catch(err){ error('MIDI access denied: ' + err.message); }
+  });
+
+  midiOutSelect.addEventListener('change', ()=>{
+    const id = midiOutSelect.value;
+    selectedOutput = midiAccess && midiAccess.outputs.get(id) || null;
+    info('Selected MIDI output: ' + (selectedOutput ? selectedOutput.name : 'none'));
+  });
+
+  function populateMidiOutputs(){
+    while(midiOutSelect.firstChild) midiOutSelect.removeChild(midiOutSelect.firstChild);
+    for(const out of midiAccess.outputs.values()){
+      const opt = document.createElement('option');
+      opt.value = out.id; opt.textContent = out.name || out.manufacturer || out.id;
+      midiOutSelect.appendChild(opt);
+    }
+    if(midiOutSelect.options.length>0) midiOutSelect.selectedIndex = 0;
+    midiOutSelect.dispatchEvent(new Event('change'));
+  }
+
+  function clearScheduled(){
+    for(const t of scheduledTimeouts) clearTimeout(t);
+    scheduledTimeouts = [];
+    // turn off active notes
+    for(const n of activeNotes){ if(selectedOutput) selectedOutput.send([0x80, n, 0]); }
+    activeNotes = [];
+  }
+
+  function stopPlayback(){
+    clearScheduled();
+    info('Playback stopped');
+  }
+
+  function startPlayback(song){
+    stopPlayback();
+    const tempo = song.tempo || 100; // tempo from parser is already /100
+    // seconds per tick heuristic: 60 / (tempo * 20)
+    const secondsPerTick = 60/(tempo*20);
+    info('Starting playback — tempo: ' + tempo + ', secondsPerTick: ' + secondsPerTick.toFixed(4));
+
+    // collect events from layers
+    const events = [];
+    for(const layerIndex of Object.keys(song.layers)){
+      const layer = song.layers[layerIndex];
+      for(const tickStr of Object.keys(layer.notes||{})){
+        const tick = Number(tickStr);
+        const note = layer.notes[tickStr];
+        events.push({tick, note, layerIndex});
+      }
+    }
+    events.sort((a,b)=>a.tick-b.tick);
+
+    const now = performance.now();
+    for(const ev of events){
+      const when = now + ev.tick * secondsPerTick * 1000;
+      const t = setTimeout(()=>{
+        playNoteEvent(ev.note);
+      }, when - now);
+      scheduledTimeouts.push(t);
+    }
+    info('Scheduled ' + events.length + ' notes');
+  }
+
+  function playNoteEvent(note){
+    // map NBS key to a MIDI note number (heuristic)
+    const midiNote = (note.key || 33) + 12; // shift into audible range
+    const velocity = 100;
+    if(useMidiCheckbox.checked && selectedOutput){
+      try{
+        selectedOutput.send([0x90, midiNote, velocity]);
+        activeNotes.push(midiNote);
+        setTimeout(()=>{ selectedOutput.send([0x80, midiNote, 0]); }, 200);
+      }catch(err){ error('MIDI send error: ' + err.message); }
+    } else {
+      // fallback: simple WebAudio beep
+      playBeep(midiNote, 0.18);
+    }
+  }
+
+  // simple webaudio beep
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playBeep(midiNote, dur){
+    const freq = 440 * Math.pow(2, (midiNote - 69)/12);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.value = 0.2;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); }, dur*1000);
+  }
 
   // helpers
   function id(s){ return document.getElementById(s); }
@@ -81,4 +184,5 @@
   // Initial UI state
   updateContinue();
   if(!accepted){ show(licenseModal); }
-})();
+}
+
