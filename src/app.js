@@ -1,4 +1,4 @@
-// Basic application glue for Wjnbs — now exported as an ES module init()
+// Basic application glue for WebNBS — now exported as an ES module init()
 export function init(){
   const logEl = id('log');
   const fileInput = id('fileInput');
@@ -15,16 +15,16 @@ export function init(){
   const continueBtn = id('continueBtn');
 
   // Restore acceptance if previously granted
-  const accepted = localStorage.getItem('wjnbs:accepted') === '1';
+  const accepted = localStorage.getItem('webnbs:accepted') === '1';
   if(accepted){ hide(licenseModal); } else { show(licenseModal); }
 
   agreeMain.addEventListener('change', updateContinue);
   agreeNonProfit.addEventListener('change', updateContinue);
   continueBtn.addEventListener('click', ()=>{
     if(agreeMain.checked && agreeNonProfit.checked){
-      localStorage.setItem('wjnbs:accepted','1');
+      localStorage.setItem('webnbs:accepted','1');
       hide(licenseModal);
-      info('Thank you — you may now use Wjnbs.');
+      info('Thank you — you may now use WebNBS.');
     }
   });
 
@@ -41,8 +41,8 @@ export function init(){
     // If nbs.js is available, parse the buffer
     if(window.NBS && typeof window.NBS.parse === 'function'){
       try{
-        window.wjnbsSong = window.NBS.parse(new Uint8Array(arrayBuffer));
-        info('Parsed NBS: ' + (window.wjnbsSong.title||'untitled'));
+        window.webnbsSong = window.NBS.parse(new Uint8Array(arrayBuffer));
+        info('Parsed NBS: ' + (window.webnbsSong.title||'untitled'));
         playBtn.disabled = false;
         stopBtn.disabled = false;
       }catch(err){
@@ -51,16 +51,16 @@ export function init(){
       }
     } else {
       info('nbs.js not available — file held in memory (no playback)');
-      window.wjnbsSong = {raw:arrayBuffer};
+      window.webnbsSong = {raw:arrayBuffer};
       playBtn.disabled = true; // disable until nbs integration
       stopBtn.disabled = true;
     }
   });
 
   playBtn.addEventListener('click', ()=>{
-    if(!window.wjnbsSong){ return error('No song loaded'); }
+    if(!window.webnbsSong){ return error('No song loaded'); }
     try{
-      startPlayback(window.wjnbsSong);
+      startPlayback(window.webnbsSong);
     }catch(err){ error('Playback error: ' + err.message); }
   });
 

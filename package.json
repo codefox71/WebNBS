@@ -1,7 +1,7 @@
 {
-  "name": "wjnbs",
+  "name": "webnbs",
   "version": "0.1.0",
-  "description": "Wjnbs — browser-first reimplementation of NBS using nbs.js",
+  "description": "WebNBS — browser-first reimplementation of NBS using nbs.js",
   "private": true,
   "scripts": {
     "dev": "vite",

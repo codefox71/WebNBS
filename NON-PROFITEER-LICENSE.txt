@@ -1,12 +1,12 @@
-Non-Profiteer Licence (Wjnbs)
+Non-Profiteer Licence (WebNBS)
 
 This Non-Profiteer Licence is an additional document that must be accepted
-alongside the main Wjnbs License in order to use this software.
+alongside the main WebNBS License in order to use this software.
 
 Key points:
 
 - Redistribution for Money Prohibited: No person or company may redistribute
-  the ORIGINAL copy of Wjnbs (compiled or uncompiled) in exchange for money
+  the ORIGINAL copy of WebNBS (compiled or uncompiled) in exchange for money
   or other consideration. Redistribution that charges for transfer of the
   original work is explicitly forbidden.
 
