@@ -1,0 +1,22 @@
+Non-Profiteer Licence (Wjnbs)
+
+This Non-Profiteer Licence is an additional document that must be accepted
+alongside the main Wjnbs License in order to use this software.
+
+Key points:
+
+- Redistribution for Money Prohibited: No person or company may redistribute
+  the ORIGINAL copy of Wjnbs (compiled or uncompiled) in exchange for money
+  or other consideration. Redistribution that charges for transfer of the
+  original work is explicitly forbidden.
+
+- Derivative Works: Creating derivative works, forks, or modified builds is
+  allowed, but charging for the ORIGINAL copy is prohibited unless express
+  permission is granted by the original author(s).
+
+- Removal of this Document: This document may only be removed from the
+  distributed package with explicit written permission from the original
+  author(s).
+
+If you require a commercial redistribution licence or other permissions,
+contact the author(s) to discuss licensing terms.

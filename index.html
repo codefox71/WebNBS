@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wjnbs — Web NBS Player</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Wjnbs</h1>
+    <p class="tagline">A browser-first reimplementation of NBS (Wjnbs)</p>
+  </header>
+
+  <main class="app">
+    <section class="controls">
+      <input id="fileInput" type="file" accept=".nbs" />
+      <button id="playBtn" disabled>Play</button>
+      <button id="stopBtn" disabled>Stop</button>
+      <div id="fileName" class="file-name">No file loaded</div>
+    </section>
+
+    <section class="log">
+      <h3>Console</h3>
+      <pre id="log"></pre>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a href="LICENSE" target="_blank">License</a> •
+    <a href="NON-PROFITEER-LICENSE.txt" target="_blank">Non-Profiteer Licence</a>
+  </footer>
+
+  <div id="licenseModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to Wjnbs</h2>
+      <p>Before using Wjnbs you must agree to the following two documents:</p>
+      <ul>
+        <li><a href="LICENSE" target="_blank">Wjnbs License</a></li>
+        <li><a href="NON-PROFITEER-LICENSE.txt" target="_blank">Non-Profiteer Licence</a></li>
+      </ul>
+
+      <label class="license-checkbox"><input type="checkbox" id="agreeMain"> I agree to the Wjnbs License</label>
+      <label class="license-checkbox"><input type="checkbox" id="agreeNonProfit"> I agree to the Non-Profiteer Licence</label>
+
+      <div class="modal-actions">
+        <button id="continueBtn" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Attempt to load nbs.js from the CDN (best-effort). If unavailable, app uses placeholders.
+    (function(){
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/nbs.js@latest/dist/nbs.min.js';
+      s.crossOrigin = 'anonymous';
+      s.onload = function(){ console.log('nbs.js loaded (from CDN)'); };
+      s.onerror = function(){ console.warn('nbs.js failed to load from CDN — continue with placeholders'); };
+      document.head.appendChild(s);
+    })();
+  </script>
+  <script src="src/app.js"></script>
+</body>
+</html>
